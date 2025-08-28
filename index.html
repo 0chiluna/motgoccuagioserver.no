@@ -9,21 +9,31 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
 
   <style>
+    body.dark {
+      background: #0f172a;
+      color: #f1f5f9;
+    }
+
     .profile-box {
-      transition: all 0.3s ease;
+      transition: all 0.6s ease;
       position: relative;
       z-index: 10;
+      opacity: 0;
+      transform: translateY(50px);
+    }
+    .profile-box.show {
+      opacity: 1;
+      transform: translateY(0);
     }
     .profile-box:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
     }
     .text-gradient {
       background: linear-gradient(to right, #0f172a, #a7f3d0);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
-    .video-background {
+    .bg-video {
       position: fixed;
       top: 0;
       left: 0;
@@ -32,152 +42,178 @@
       object-fit: cover;
       z-index: -10;
       pointer-events: none;
-      touch-action: none;
       opacity: 0.85;
     }
     #coffee-loader {
-  opacity: 1;
-  pointer-events: all;
-}
-
-#coffee-loader.hide {
-  opacity: 0;
-  pointer-events: none;
+      opacity: 1;
+      pointer-events: all;
     }
-      
+    #coffee-loader.hide {
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    /* Particle */
+    .particle {
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: rgba(255,255,255,0.8);
+      border-radius: 50%;
+      pointer-events: none;
+      animation: floatUp 1s ease-out forwards;
+    }
+    @keyframes floatUp {
+      from { transform: translateY(0) scale(1); opacity: 1; }
+      to { transform: translateY(-40px) scale(0.5); opacity: 0; }
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
-<!-- COFFEE LOADING SCREEN -->
-<div id="coffee-loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md text-white text-center transition-opacity duration-500
-  <p class="text-sm animate-pulse">Đang pha một ly cà phê...</p>
+
+<!-- LOADING SCREEN -->
+<div id="coffee-loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black/80 backdrop-blur-md text-white text-center transition-opacity duration-500">
+  <p class="text-sm animate-pulse">Đang pha một ly cà phê... (click để tiếp tục)</p>
 </div>
-  
-  <!-- VIDEO BACKGROUND -->
-  <img src="https://s3.tebi.io/ely.bucket.s0.io.biti/3978c829958894fa9223a880603d7c01.jpg" alt="Background" class="bg-video">
 
-  <!-- PROFILE BOX -->
-  <div class="profile-box bg-white rounded-xl shadow-lg overflow-hidden w-full max-w-md">
-    <!-- Background Overlay Image -->
-    <div class="absolute inset-0 bg-[url('https://s3.tebi.io/ely.bucket.s0.io.biti/taoanhdep_nang_cap_anh_42030.jpeg')] bg-cover bg-center opacity-1 z-0"></div>
+<!-- BACKGROUND -->
+<img src="https://s3.tebi.io/ely.bucket.s0.io.biti/3978c829958894fa9223a880603d7c01.jpg" alt="Background" class="bg-video">
 
-    <!-- Content Layer -->
-    <div class="relative z-10">
-      <div class="p-6 flex items-center space-x-4">
-        <!-- Avatar -->
-        <div class="relative">
-          <img src="https://s3.tebi.io/ely.bucket.s0.io.biti/54ef5a24da91b7d4079d7b8ea5237844.jpg"
-               class="w-16 h-16 rounded-full object-cover shadow-inner border-2 border-white"
-               alt="Avatar" />
-          <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
-        </div>
+<!-- THEME TOGGLE -->
+<button id="theme-toggle" class="absolute top-4 right-4 z-50 bg-white/80 dark:bg-gray-700 p-2 rounded-lg shadow">
+  <i class="fas fa-moon"></i>
+</button>
 
-        <!-- Profile Info -->
-        <div class="flex-1">
-          <h2 id="profileName" class="text-xl font-semibold text-gradient">John Doe</h2>
-          <p id="profileTitle" class="text-white">Frontend Developer</p>
-          <div class="flex items-center mt-2 space-x-2">
-            <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Discord</span>
-            <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full">Server</span>
-          </div>
-        </div>
+<!-- PROFILE BOX -->
+<div id="profileBox" class="profile-box bg-white dark:bg-gray-800 rounded-xl shadow-lg overflow-hidden w-full max-w-md">
+  <!-- Overlay background -->
+  <div class="absolute inset-0 bg-[url('https://s3.tebi.io/ely.bucket.s0.io.biti/taoanhdep_nang_cap_anh_42030.jpeg')] bg-cover bg-center opacity-1 z-0"></div>
 
-        <!-- Settings -->
-        <button class="text-gray-400 hover:text-gray-600 transition-colors">
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
+  <!-- Content -->
+  <div class="relative z-10">
+    <div class="p-6 flex items-center space-x-4">
+      <!-- Avatar -->
+      <div class="relative">
+        <img src="https://s3.tebi.io/ely.bucket.s0.io.biti/54ef5a24da91b7d4079d7b8ea5237844.jpg"
+             class="w-16 h-16 rounded-full object-cover shadow-inner border-2 border-white"
+             alt="Avatar" />
+        <div class="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
       </div>
 
-      <!-- Join Button -->
-      <div class="px-6 pb-6">
-        <a href="https://discord.gg/SEuTEKXyH4" target="_blank" rel="noopener noreferrer"
-           class="block w-full text-center py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg transition-all duration-300 font-medium flex justify-center items-center gap-2">
-          <i class="fas fa-user-plus"></i> Join Server
-        </a>
+      <!-- Info -->
+      <div class="flex-1">
+        <h2 id="profileName" class="text-xl font-semibold text-gradient">Một góc của gió</h2>
+        <p id="profileTitle" class="text-white">Không cần nhiều lời, gió đủ hiểu</p>
+        <div class="flex items-center mt-2 space-x-2">
+          <span class="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Discord</span>
+          <span class="text-xs px-2 py-1 bg-purple-100 text-purple-800 rounded-full">Server</span>
+        </div>
       </div>
-      <div id="realtime-clock" class="text-sm text-center text-white py-2 drop-shadow" style="text-shadow: 0 0 4px rgba(255,255,255,0.7);"></div>
-       <div id="quote-box" class="text-xs text-white text-center mb-2 drop-shadow"></div>
+
+      <!-- Settings -->
+      <button class="text-gray-400 hover:text-gray-600 transition-colors">
+        <i class="fas fa-ellipsis-v"></i>
+      </button>
     </div>
-    
+
+    <!-- Join Button -->
+    <div class="px-6 pb-6">
+      <a href="https://discord.gg/SEuTEKXyH4" target="_blank" rel="noopener noreferrer"
+         class="block w-full text-center py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-lg transition-all duration-300 font-medium flex justify-center items-center gap-2">
+        <i class="fas fa-user-plus"></i> Join Server
+      </a>
     </div>
+    <div id="realtime-clock" class="text-sm text-center text-white py-2 drop-shadow"></div>
+    <div id="quote-box" class="text-xs text-white text-center mb-2 drop-shadow"></div>
+    <div id="visitor-count" class="text-xs text-center text-gray-200 pb-3"></div>
   </div>
-    </div>
+
+  <!-- FOOTER ICONS -->
+  <div class="flex justify-center space-x-6 py-3 bg-gray-100 dark:bg-gray-700">
+    <a href="https://github.com/" target="_blank" class="text-gray-600 dark:text-gray-200 hover:text-black"><i class="fab fa-github fa-lg"></i></a>
+    <a href="https://discord.com/" target="_blank" class="text-gray-600 dark:text-gray-200 hover:text-indigo-500"><i class="fab fa-discord fa-lg"></i></a>
   </div>
+</div>
 
-  <script>
-    const profileData = {
-      name: "Một góc của gió",
-      title: "Không cần nhiều lời, gió đủ hiểu",
-      isOnline: true,
-    };
-
-    document.addEventListener('DOMContentLoaded', function () {
-      document.getElementById('profileName').textContent = profileData.name;
-      document.getElementById('profileTitle').textContent = profileData.title;
-
-      const onlineIndicator = document.querySelector('img + div');
-      if (!profileData.isOnline) {
-        onlineIndicator.classList.remove('bg-green-500');
-        onlineIndicator.classList.add('bg-gray-400');
-      }
-    });
-    function updateRealTimeClock() {
-      const now = new Date();
-      const day = String(now.getDate()).padStart(2, '0');
-      const month = String(now.getMonth() + 1).padStart(2, '0');
-      const year = now.getFullYear();
-      const hour = String(now.getHours()).padStart(2, '0');
-      const minute = String(now.getMinutes()).padStart(2, '0');
-      const second = String(now.getSeconds()).padStart(2, '0');
-
-      const dateTime = `${day}/${month}/${year} ${hour}:${minute}:${second}`;
-      document.getElementById('realtime-clock').textContent = dateTime;
-    }
-
-    setInterval(updateRealTimeClock, 1000);
-    updateRealTimeClock();
-    // quotes 
-    const quotes = [
-  "「Even the darkest night will end and the sun will rise.」",
-  "「Create with passion or not at all.」",
-  "「Code is poetry.」",
-  "「Believe you can and you're halfway there.」",
-  "「Chẳng có gì là mãi mãi cả.」",
-  "「Con người không muốn tìm cách hoàn thiện mà chỉ muốn bình yên.」",
-  "「Không sợ đi chậm, chỉ sợ đứng yên.」",
-  "「Simplicity is the ultimate sophistication.」",
-  "「You are not your job, you are not how much money you have.」",
-  "「Đừng cố gắng nổi bật — hãy cố gắng có ích.」",
-  "「The quieter you become, the more you are able to hear.」",
-  "「Hạnh phúc là khi bạn không cần phải giải thích điều gì với ai.」",
-  "「Focus on progress, not perfection.」",
-  "「Chiến thắng lớn nhất là chiến thắng chính mình.」",
-  "「Don't adapt to the energy in the room. Influence the energy in the room.」",
-  "「Thứ đáng sợ không phải là thất bại, mà là không dám bắt đầu.」"
-];
-    const qb = document.getElementById('quote-box');
-
-// Hàm đổi quote có hiệu ứng fade
-function changeQuote() {
-  qb.classList.add('fade-out'); // fade out
-
-  setTimeout(() => {
-    qb.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-    qb.classList.remove('fade-out'); // fade in sau khi đổi nội dung
-  }, 500); // thời gian khớp với transition
-}
-
-// Khởi tạo
-qb.textContent = quotes[Math.floor(Math.random() * quotes.length)];
-setInterval(changeQuote, 8000);
-    // ===== COFFEE LOADER =====
-window.addEventListener('load', () => {
+<script>
+  // Loader click
   const loader = document.getElementById('coffee-loader');
-  setTimeout(() => {
+  const profileBox = document.getElementById('profileBox');
+  loader.addEventListener('click', () => {
     loader.classList.add('hide');
-  }, 3000);
-});
-    
-  </script>
+    setTimeout(()=> profileBox.classList.add('show'), 500);
+  });
+
+  // Real-time clock
+  function updateRealTimeClock() {
+    const now = new Date();
+    const dateTime = now.toLocaleString("vi-VN");
+    document.getElementById('realtime-clock').textContent = dateTime;
+  }
+  setInterval(updateRealTimeClock, 1000);
+  updateRealTimeClock();
+
+  // Quotes
+  const quotes = [
+    "「Even the darkest night will end and the sun will rise.」",
+    "「Create with passion or not at all.」",
+    "「Code is poetry.」",
+    "「Believe you can and you're halfway there.」",
+    "「Chẳng có gì là mãi mãi cả.」",
+    "「Con người không muốn tìm cách hoàn thiện mà chỉ muốn bình yên.」",
+    "「Không sợ đi chậm, chỉ sợ đứng yên.」",
+    "「Simplicity is the ultimate sophistication.」",
+    "「You are not your job, you are not how much money you have.」",
+    "「Đừng cố gắng nổi bật — hãy cố gắng có ích.」"
+  ];
+  const qb = document.getElementById('quote-box');
+  function changeQuote() {
+    qb.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+  }
+  qb.textContent = quotes[Math.floor(Math.random() * quotes.length)];
+  setInterval(changeQuote, 8000);
+
+  // Visitor counter (CountAPI)
+  fetch('https://api.countapi.xyz/hit/myprofilebox.visits')
+    .then(res => res.json())
+    .then(data => {
+      document.getElementById("visitor-count").textContent = `👀 Số lượt ghé thăm: ${data.value}`;
+    });
+
+  // Theme toggle
+  const themeToggle = document.getElementById("theme-toggle");
+  if(localStorage.getItem("theme") === "dark"){
+    document.body.classList.add("dark");
+  }
+  themeToggle.addEventListener("click", ()=>{
+    document.body.classList.toggle("dark");
+    localStorage.setItem("theme", document.body.classList.contains("dark") ? "dark" : "light");
+  });
+
+  // Particle effect on hover
+  profileBox.addEventListener("mousemove", (e)=>{
+    const rect = profileBox.getBoundingClientRect();
+    const particle = document.createElement("div");
+    particle.className = "particle";
+    particle.style.left = (e.clientX - rect.left) + "px";
+    particle.style.top = (e.clientY - rect.top) + "px";
+    profileBox.appendChild(particle);
+    setTimeout(()=> particle.remove(), 1000);
+  });
+
+  // 3D Tilt effect
+  profileBox.addEventListener("mousemove", (e)=>{
+    const rect = profileBox.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width/2;
+    const y = e.clientY - rect.top - rect.height/2;
+    const rotateX = (y / rect.height) * 10;
+    const rotateY = (x / rect.width) * -10;
+    profileBox.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.03)`;
+  });
+  profileBox.addEventListener("mouseleave", ()=>{
+    profileBox.style.transform = "rotateX(0) rotateY(0) scale(1)";
+  });
+</script>
+
 </body>
 </html>
